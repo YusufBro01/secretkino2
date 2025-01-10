@@ -1,5 +1,6 @@
 const { Telegraf } = require('telegraf');
 const fs = require('fs');
+const express = require('express');
 
 // Telegram bot tokenini yozing
 const bot = new Telegraf('7705302307:AAGDFXVQGS7Yj_DMROzZEH9pthq9Etp7YOE');
@@ -13,6 +14,12 @@ const channels = ["@secret_kino1", "@secret_kino1", "@secret_kino1"]; // Telegra
 
 // Ma'lumotlar fayli
 const DATA_FILE = './data.json';
+
+// Express serveri Webhook uchun
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
 
 // Ma'lumotlarni yuklash va saqlash funksiyalari
 function loadData() {
@@ -177,11 +184,17 @@ async function checkSubscriptions(ctx, channels) {
     return true;
 }
 
-// Botni ishga tushirish
-bot.launch().then(() => {
-    console.log('🚀 Bot ishga tushdi!');
+// Webhookni sozlash
+const DOMAIN = 'https://kino-bot-c8xr.onrender.com'; // Render domeningiz
+const WEBHOOK_PATH = `/bot${bot.token}`;
+bot.telegram.setWebhook(`${DOMAIN}${WEBHOOK_PATH}`);
+
+app.post(WEBHOOK_PATH, (req, res) => {
+    bot.handleUpdate(req.body);
+    res.sendStatus(200);
 });
 
-// Graceful shutdown
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+// Botni ishga tushirish
+app.listen(PORT, () => {
+    console.log(`🚀 Server ${PORT} portda ishlamoqda!`);
+});
