@@ -6,10 +6,11 @@ const bot = new Telegraf('7705302307:AAGDFXVQGS7Yj_DMROzZEH9pthq9Etp7YOE');
 
 // Administrator Telegram ID sini bu yerga yozing
 const ADMIN_ID = 5025075321; // Adminning haqiqiy Telegram ID si
-const CHANNEL_USERNAME = '@secret_kino1'; // Telegram kanal username
 
-// Kanallarni belgilash (data.json faylidan o'rniga)
-const channels = ["@secret_kino1", "@secret_kino1", "@secret_kino1"]; // Telegram kanal ro'yxati
+// Kanallarni belgilash
+const channels = [
+    '@secret_kino1'   // Ochiq kanal
+];
 
 // Ma'lumotlar fayli
 const DATA_FILE = './data.json';
@@ -23,8 +24,8 @@ function loadData() {
         }
         return data;
     } catch (error) {
-        console.error('❌ Ma\'lumotlarni yuklashda xatolik:', error.message);
-        const defaultData = { users: {}, movies: [] }; // channels now in bot.js
+        console.error('❌ Malumotlarni yuklashda xatolik:', error.message);
+        const defaultData = { users: {}, movies: [] };
         saveData(defaultData);
         return defaultData;
     }
@@ -39,32 +40,25 @@ bot.start((ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    // Foydalanuvchini bazaga qo'shish
-    if (!data.users[userId]) {
-        data.users[userId] = { subscribed: false };
-        saveData(data);
+    // Foydalanuvchini bazaga qo'shish yoki yangilash
+    data.users[userId] = { subscribed: false };
+    saveData(data);
 
-        // Kanallarning ro'yxatini tugmalar bilan yuborish
-        const buttons = channels.map((channel, index) => [
-            { text: `${index + 1}-kanal`, url: `https://t.me/${channel.replace('@', '')}` }
-        ]);
-        buttons.push([{ text: '✅ Obunani tekshirish', callback_data: 'check_subscription' }]);
+    // Kanallarning ro'yxatini tugmalar bilan yuborish
+    const buttons = channels.map((channel, index) => {
+        if (typeof channel === 'string' && channel.startsWith('@')) {
+            return [{ text: `${index + 1}-kanalga obuna bo'lish`, url: `https://t.me/${channel.replace('@', '')}` }];
+        } else {
+            return [{ text: `${index + 1}-kanalga obuna bo'lish`, url: `https://t.me/+...` }]; // Maxfiy kanal uchun havola qo'ying
+        }
+    });
 
-        ctx.reply(
-            `👋 Assalomu alaykum!\nQuyidagi kanallarga obuna bo'ling va "Obunani tekshirish" tugmasini bosing:`,
-            { reply_markup: { inline_keyboard: buttons } }
-        );
-    } else if (data.users[userId].subscribed) {
-        // Foydalanuvchi qayta /start bossa
-        ctx.reply(
-            `🔒 Kinoni yuklash uchun kino kodini kiriting.`,
-            {
-                reply_markup: {
-                    inline_keyboard: [[{ text: 'Kino kodini olish', url: `https://t.me/${channels[0].replace('@', '')}` }]]
-                }
-            }
-        );
-    }
+    buttons.push([{ text: '✅ Obunani tekshirish', callback_data: 'check_subscription' }]);
+
+    ctx.reply(
+        `👋 Assalomu alaykum!\nQuyidagi kanallarga obuna bo'ling va "Obunani tekshirish" tugmasini bosing:`,
+        { reply_markup: { inline_keyboard: buttons } }
+    );
 });
 
 // Obunani tekshirish
@@ -72,71 +66,70 @@ bot.action('check_subscription', async (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    // Obunani tekshirish
-    const isSubscribed = await checkSubscriptions(ctx, channels);
+    // Obuna holatini tekshirish
+    const isSubscribed = await checkSubscriptions(ctx);
+
     if (isSubscribed) {
-        data.users[userId].subscribed = true;
+        // Agar foydalanuvchi obuna bo'lgan bo'lsa
+        data.users[userId] = { subscribed: true };
         saveData(data);
 
-        // Obunani muvaffaqiyatli o‘tganda tugmalarni olib tashlash
         await ctx.editMessageText(
-            `✅ Siz ro'yxatdan o'tdingiz! Endi kino kodini kiriting.`,
-            {
-                reply_markup: {
-                    inline_keyboard: [[{ text: 'Kino kodini olish', url: `https://t.me/${channels[0].replace('@', '')}` }]]
-                }
-            }
+            `✅ Siz ro'yxatdan o'tdingiz! Endi kino kodini kiriting.`
         );
     } else {
-        // Foydalanuvchi hali obuna bo‘lmagan bo‘lsa
-        await ctx.reply(`❌ Siz hali hamma kanallarga obuna bo'lmadingiz. Iltimos, obuna bo'lib qayta tekshiring.`);
+        // Agar foydalanuvchi hali hamma kanallarga obuna bo'lmasa
+        await ctx.reply(
+            `❌ Siz hali hamma kanallarga obuna bo'lmadingiz. Iltimos, obuna bo'lib qayta tekshiring.`
+        );
     }
 });
+
+// Obuna tekshiruvchi funksiyasi (Maxfiy kanal uchun chat ID bilan ishlaydi)
+async function checkSubscriptions(ctx) {
+    for (const channel of channels) {
+        try {
+            const member = await ctx.telegram.getChatMember(channel, ctx.from.id);
+
+            // Obuna holatini tekshirish
+            if (!['creator', 'administrator', 'member'].includes(member.status)) {
+                return false; // Obuna emas
+            }
+        } catch (error) {
+            console.error(`❌ Kanalga ulanishda xatolik: ${error.message}`);
+            return false; // Kanalga ulanishda xatolik
+        }
+    }
+    return true; // Hamma kanallarga obuna
+}
 
 // Kino yuklash (faqat admin uchun)
 bot.on('video', async (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    // Faqat admin yuklay oladi
     if (userId !== ADMIN_ID) {
-        return ctx.reply('❌ Faqat administrator kinolarni qo\'shishi mumkin.');
+        return ctx.reply('❌ Faqat administrator kinolarni qoshishi mumkin.');
     }
 
-    // Kino ID generatsiya qilish
-    const movieId = Math.floor(1000 + Math.random() * 9000);
     const video = ctx.message.video;
-
-    // Video fayl ID va nomini tekshirish
     if (!video || !video.file_id) {
         return ctx.reply('❌ Video fayli topilmadi.');
     }
 
+    const movieId = data.movies.length + 1;
     const movie = {
         id: movieId,
         fileId: video.file_id,
-        fileName: video.file_name || 'No name'
+        fileName: video.file_name || 'No name',
+        uploadDate: new Date().toLocaleDateString()
     };
 
     data.movies.push(movie);
     saveData(data);
 
-    try {
-        // Adminga kino kodi bilan xabar berish
-        await ctx.reply(`✅ Kino muvaffaqiyatli qo'shildi!\n🎥 Kino kodi: ${movieId}`);
+    await ctx.reply(`✅ Kino yuklandi\n🍿 Kino kodi: ${movieId}`);
 
-        // Kinoni Telegram kanalda ulashish
-        await ctx.telegram.sendVideo(
-            CHANNEL_USERNAME,
-            movie.fileId,
-            {
-                caption: `🎬 Yangi kino qo'shildi!\n🎥 Kino kodi: ${movieId}\n📂 Kino nomi: ${movie.fileName || 'No name'}`
-            }
-        );
-    } catch (error) {
-        console.error('❌ Video yuborishda xatolik:', error.message);
-        return ctx.reply('❌ Kinoni kanalda yuborishda xatolik yuz berdi.');
-    }
 });
 
 // Kino qidirish va yuborish
@@ -144,9 +137,8 @@ bot.on('text', (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    // Foydalanuvchi ro'yxatdan o'tganini tekshirish
     if (!data.users[userId]?.subscribed) {
-        return ctx.reply('❌ Siz ro\'yxatdan o\'tmagansiz. Iltimos, /start buyrug\'ini bosing.');
+        return ctx.reply('❌ Siz royxatdan otmagansiz. Iltimos, /start buyrugini bosing.');
     }
 
     const movieId = parseInt(ctx.message.text.trim(), 10);
@@ -154,28 +146,21 @@ bot.on('text', (ctx) => {
 
     if (movie) {
         ctx.replyWithVideo(movie.fileId, {
-            caption: `🎬 Kino kodi: ${movie.id}\n🎥 ${movie.fileName || 'Noma\'lum nom'}`
+            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n🔎 Kinoning kodi: ${movie.id}\n✅ Kanalga obuna bo‘ling: https://t.me/secret_kino1\n👨‍💻 Admin: @secret_adminuzz`,
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: 'Boshqa film...', url: 'https://t.me/secret_kino1' },  // To'g'ri kanal URL
+                        { text: 'Admin 👨‍💻', url: 'https://t.me/secret_adminuzz' }     // Admin URL
+                    ]
+                ]
+            }
         });
+        
     } else {
-        ctx.reply('❌ Bunday kino topilmadi. Iltimos, kodni to\'g\'ri kiriting.');
+        ctx.reply('❌ Bunday kino topilmadi. Iltimos, kodni togri kiriting.');
     }
 });
-
-// Obunani tekshirish funksiyasi
-async function checkSubscriptions(ctx, channels) {
-    for (const channel of channels) {
-        try {
-            const member = await ctx.telegram.getChatMember(channel, ctx.from.id);
-            if (!['creator', 'administrator', 'member'].includes(member.status)) {
-                return false;
-            }
-        } catch (error) {
-            console.error(`Kanalni tekshirishda xatolik: ${error.message}`);
-            return false;
-        }
-    }
-    return true;
-}
 
 // Botni ishga tushirish
 bot.launch().then(() => {
