@@ -77,7 +77,7 @@ bot.action('check_subscription', async (ctx) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: '🔍Kodlarni kirish', url: `https://t.me/${channel.replace('@', '')}` }
+                            { text: '🔍Kodlarni kirish', url: 'https://t.me/secret_kino1' }
                         ]
                     ]
                 }
@@ -102,7 +102,7 @@ bot.action('check_subscription', async (ctx) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: '🔍Kodlarni kirish', url: `https://t.me/${channel.replace('@', '')}` }
+                            { text: '🔍Kodlarni kirish', url: 'https://t.me/secret_kino1' }
                         ]
                     ]
                 }
