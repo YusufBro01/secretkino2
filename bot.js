@@ -184,11 +184,11 @@ bot.on('text', (ctx) => {
                 inline_keyboard: [
                     [
                         { text: '🍿Boshqa film', url: 'https://t.me/secret_kino1' },  // To'g'ri kanal URL
-                        { text: '👨‍💻Admin ', url: 'https://t.me/secret_adminuzz' }     // Admin URL
-                    ]
-                    [
+                        { text: '👨‍💻Admin ', url: 'https://t.me/secret_adminuzz' },     // Admin URL
                         { text: 'Filimni ulashish', url: 'https://t.me/share/secret_kino1'}
                     ]
+                    
+                    
                 ]
             }
         });
