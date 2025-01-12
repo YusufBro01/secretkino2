@@ -171,7 +171,7 @@ bot.on('text', (ctx) => {
     const userId = ctx.from.id;
 
     if (!data.users[userId]?.subscribed) {
-        return ctx.reply('❌ Siz royxatdan otmagansiz. Iltimos, /start buyrugini bosing.');
+        return ctx.reply('❌ Bunday kino mavjud emas!\n\n Qayta urinib koring');
     }
 
     const movieId = parseInt(ctx.message.text.trim(), 10);
