@@ -49,7 +49,7 @@ bot.start((ctx) => {
         if (typeof channel === 'string' && channel.startsWith('@')) {
             return [{ text: `${index + 1}-kanalga obuna bo'lish`, url: `https://t.me/${channel.replace('@', '')}` }];
         } else {
-            return [{ text: `${index + 1}-kanalga obuna bo'lish`, url: `https://t.me/+...` }]; // Maxfiy kanal uchun havola qo'ying
+            return [{ text: `${index + 1}-kanalga obuna bo'lish`, url: `https://t.me/+...` }];
         }
     });
 
@@ -60,6 +60,7 @@ bot.start((ctx) => {
         { reply_markup: { inline_keyboard: buttons } }
     );
 });
+
 
 // Obunani tekshirish
 bot.action('check_subscription', async (ctx) => {
@@ -132,19 +133,17 @@ bot.on('video', async (ctx) => {
 
 });
 
-// Kino qidirish va yuborish
+// Kino yuborish
 bot.on('text', (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    if (!data.users[userId]&& data.users[userId].subscribed) {
-        return ctx.reply(`🖐 𝗦𝗮𝗹𝗼𝗺 ${userName}\n\n🔍 𝗙𝗶𝗹𝗺 𝗸𝗼𝗱𝗶𝗻𝗶 𝗸𝗶𝗿𝗶𝘁𝗶𝗻𝗴:`,
+    if (!data.users[userId] && data.users[userId].subscribed) {
+        return ctx.reply(`🖐 𝗦𝗮𝗹𝗼𝗺 ${ctx.from.first_name}\n\n🔍 𝗙𝗶𝗹𝗺 𝗸𝗼𝗱𝗶𝗻𝗶 𝗸𝗶𝗿𝗶𝘁𝗶𝗻𝗴:`,
             {
                 reply_markup: {
                     inline_keyboard: [
-                        [
-                            { text: '🔍Kodlarni kirish', callback_data: 'enter_code' }
-                        ]
+                        [{ text: '🔍 Kodlarni kirish', callback_data: 'enter_code' }]
                     ]
                 }
             }
@@ -159,18 +158,16 @@ bot.on('text', (ctx) => {
             caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n🔎 Kinoning kodi: ${movie.id}\n✅ Kanalga obuna bo‘ling: https://t.me/secret_kino1\n👨‍💻 Admin: @secret_adminuzz`,
             reply_markup: {
                 inline_keyboard: [
-                    [
-                        { text: 'Boshqa film...', url: 'https://t.me/secret_kino1' },  // To'g'ri kanal URL
-                        { text: 'Admin 👨‍💻', url: 'https://t.me/secret_adminuzz' }     // Admin URL
-                    ]
+                    [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }],
+                    [{ text: 'Admin 👨‍💻', url: 'https://t.me/secret_adminuzz' }]
                 ]
             }
         });
-        
     } else {
         ctx.reply('❌ Bunday kino topilmadi. Iltimos, kodni togri kiriting.');
     }
 });
+
 
 // Botni ishga tushirish
 bot.launch().then(() => {
