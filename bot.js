@@ -56,7 +56,7 @@ bot.start((ctx) => {
     buttons.push([{ text: '✅ Obunani tekshirish', callback_data: 'check_subscription' }]);
 
     ctx.reply(
-        `👋 Assalomu alaykum!\nQuyidagi kanallarga obuna bo'ling va "Obunani tekshirish" tugmasini bosing:`,
+        `⛔️ Botdan to'liq foydalanish uchun quyidagi kanallarga obuna bo'ling:`,
         { reply_markup: { inline_keyboard: buttons } }
     );
 });
@@ -65,26 +65,6 @@ bot.start((ctx) => {
 bot.action('check_subscription', async (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
-    const userName = ctx.from.first_name; // Foydalanuvchining ismini olish
-
-    // Agar foydalanuvchi avval ro'yxatdan o'tgan bo'lsa
-    if (data.users[userId] && data.users[userId].subscribed) {
-        await ctx.editMessageText(
-            `🖐 𝗦𝗮𝗹𝗼𝗺 ${userName}
-
-🔍 𝗙𝗶𝗹𝗺 𝗸𝗼𝗱𝗶𝗻𝗶 𝗸𝗶𝗿𝗶𝘁𝗶𝗻𝗴:`,
-            {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: '🔍Kodlarni kirish', url: 'https://t.me/secret_kino1' }
-                        ]
-                    ]
-                }
-            }
-        );
-        return; // Dastur qayta ishlov berishni tugatadi
-    }
 
     // Obuna holatini tekshirish
     const isSubscribed = await checkSubscriptions(ctx);
@@ -95,28 +75,15 @@ bot.action('check_subscription', async (ctx) => {
         saveData(data);
 
         await ctx.editMessageText(
-            `🖐 𝗦𝗮𝗹𝗼𝗺 ${userName}
-
-🔍 𝗙𝗶𝗹𝗺 𝗸𝗼𝗱𝗶𝗻𝗶 𝗸𝗶𝗿𝗶𝘁𝗶𝗻𝗴:`,
-            {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: '🔍Kodlarni kirish', url: 'https://t.me/secret_kino1' }
-                        ]
-                    ]
-                }
-            }
+            `✅ Siz ro'yxatdan o'tdingiz! Endi kino kodini kiriting.`
         );
     } else {
         // Agar foydalanuvchi hali hamma kanallarga obuna bo'lmasa
         await ctx.reply(
-            `❌ Oldin hamma kanalga obuna bo'l keyin kodni kiriting.`
+            `❌ Siz hali hamma kanallarga obuna bo'lmadingiz. Iltimos, obuna bo'lib qayta tekshiring.`
         );
     }
 });
-
-
 
 // Obuna tekshiruvchi funksiyasi (Maxfiy kanal uchun chat ID bilan ishlaydi)
 async function checkSubscriptions(ctx) {
@@ -170,8 +137,18 @@ bot.on('text', (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    if (!data.users[userId]?.subscribed) {
-        return ctx.reply('❌ Bunday kino mavjud emas!\n\n Qayta urinib koring');
+    if (!data.users[userId]&& data.users[userId].subscribed) {
+        return ctx.reply(`🖐 𝗦𝗮𝗹𝗼𝗺 ${userName}\n\n🔍 𝗙𝗶𝗹𝗺 𝗸𝗼𝗱𝗶𝗻𝗶 𝗸𝗶𝗿𝗶𝘁𝗶𝗻𝗴:`,
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: '🔍Kodlarni kirish', callback_data: 'enter_code' }
+                        ]
+                    ]
+                }
+            }
+        );
     }
 
     const movieId = parseInt(ctx.message.text.trim(), 10);
@@ -179,16 +156,13 @@ bot.on('text', (ctx) => {
 
     if (movie) {
         ctx.replyWithVideo(movie.fileId, {
-            caption: `🍿 Kino nomi: Yangi porno\n📆 Yuklangan sana: ${movie.uploadDate}\n🔎 Kinoning kodi: ${movie.id}\n✅ Kanalga obuna bo‘ling: https://t.me/secret_kino1\n👨‍💻 Admin: @secret_adminuzz`,
+            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n🔎 Kinoning kodi: ${movie.id}\n✅ Kanalga obuna bo‘ling: https://t.me/secret_kino1\n👨‍💻 Admin: @secret_adminuzz`,
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: '🍿Boshqa film', url: 'https://t.me/secret_kino1' },  // To'g'ri kanal URL
-                        { text: '👨‍💻Admin ', url: 'https://t.me/secret_adminuzz' },     // Admin URL
-                        { text: 'Filimni ulashish', url: 'https://t.me/share/secret_kino1'}
+                        { text: 'Boshqa film...', url: 'https://t.me/secret_kino1' },  // To'g'ri kanal URL
+                        { text: 'Admin 👨‍💻', url: 'https://t.me/secret_adminuzz' }     // Admin URL
                     ]
-                    
-                    
                 ]
             }
         });
