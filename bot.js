@@ -143,7 +143,7 @@ bot.on('text', (ctx) => {
             {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: '🔍 Kodlarni kirish', callback_data: 'enter_code' }]
+                        [{ text: '🔍 Kodlarni kirish', url: 'https://t.me/secret_kino1' }]
                     ]
                 }
             }
