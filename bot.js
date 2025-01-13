@@ -32,7 +32,12 @@ function loadData() {
 }
 
 function saveData(data) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        console.log('✅ Ma\'lumotlar muvaffaqiyatli saqlandi.');
+    } catch (error) {
+        console.error('❌ Ma\'lumotlarni saqlashda xatolik:', error.message);
+    }
 }
 
 // /start komandasi
@@ -133,6 +138,7 @@ bot.on('video', async (ctx) => {
     saveData(data);
 
     await ctx.reply(`✅ Kino yuklandi\n🍿 Kino kodi: ${movieId}`);
+    console.log(`📹 Kino ma'lumotlari saqlandi: ${JSON.stringify(movie)}`);
 });
 
 // Kino yuborish
@@ -149,7 +155,7 @@ bot.on('text', (ctx) => {
 
     if (movie) {
         ctx.replyWithVideo(movie.fileId, {
-            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n🔎 Kinoning kodi: ${movie.id}`,
+            caption: `🍿 Kino nomi: Yangi porno\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
             reply_markup: {
                 inline_keyboard: [
                     [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }]
