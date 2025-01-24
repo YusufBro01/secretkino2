@@ -2,7 +2,7 @@ const { Telegraf } = require('telegraf');
 const fs = require('fs');
 
 // Telegram bot tokenini yozing
-const bot = new Telegraf('7705302307:AAGDFXVQGS7Yj_DMROzZEH9pthq9Etp7YOE');
+const bot = new Telegraf('7641466998:AAEcb42vruQDn95WORNnoWcezmC7-XiNmxY');
 
 // Administrator Telegram ID sini bu yerga yozing
 const ADMIN_ID = 5025075321;
@@ -123,7 +123,7 @@ bot.on('video', async (ctx) => {
 
     const video = ctx.message.video;
     if (!video || !video.file_id) {
-        return ctx.reply('❌ Video fayli topilmadi.');
+        return ctx.reply('❌ Video fayli topilmadi yoki noto\'g\'ri format.');
     }
 
     const movieId = data.movies.length + 1;
@@ -154,14 +154,19 @@ bot.on('text', (ctx) => {
     const movie = data.movies.find(m => m.id === movieId);
 
     if (movie) {
-        ctx.replyWithVideo(movie.fileId, {
-            caption: `🍿 Kino nomi: Yangi porno\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }]
-                ]
-            }
-        });
+        try {
+            ctx.replyWithVideo(movie.fileId, {
+                caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }]
+                    ]
+                }
+            });
+        } catch (error) {
+            console.error(`❌ Video jo'natishda xatolik: ${error.message}`);
+            ctx.reply('❌ Video jo\'natishda muammo yuz berdi. Iltimos, keyinroq urinib ko\'ring.');
+        }
     } else {
         ctx.reply('❌ Bunday kino topilmadi. Iltimos, kodni to\'g\'ri kiriting.');
     }
