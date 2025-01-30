@@ -2,15 +2,13 @@ const { Telegraf } = require('telegraf');
 const fs = require('fs');
 
 // Telegram bot tokenini yozing
-const bot = new Telegraf('7641466998:AAEcb42vruQDn95WORNnoWcezmC7-XiNmxY');
+const bot = new Telegraf('8077949445:AAF4jou6ZQMpudlbtp5DUm-wFD5SJlVI_NI');
 
-// Administrator Telegram ID sini bu yerga yozing
-const ADMIN_ID = 5025075321;
+// Administrator Telegram ID larini bu yerga yozing
+const ADMIN_IDS = [5025075321, 5831400344]; // Bir nechta admin ID qo'shing
 
 // Kanallarni belgilash
-const channels = [
-    '@secret_kino1' // Kanal nomi
-];
+const channels = ['@skv_s07', '@goldkinolar_hd',];
 
 // Ma'lumotlar fayli
 const DATA_FILE = './data.json';
@@ -24,7 +22,7 @@ function loadData() {
         }
         return data;
     } catch (error) {
-        console.error('❌ Ma\'lumotlarni yuklashda xatolik:', error.message);
+        console.error("❌ Ma'lumotlarni yuklashda xatolik:", error.message);
         const defaultData = { users: {}, movies: [] };
         saveData(defaultData);
         return defaultData;
@@ -34,9 +32,9 @@ function loadData() {
 function saveData(data) {
     try {
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-        console.log('✅ Ma\'lumotlar muvaffaqiyatli saqlandi.');
+        console.log("✅ Ma'lumotlar muvaffaqiyatli saqlandi.");
     } catch (error) {
-        console.error('❌ Ma\'lumotlarni saqlashda xatolik:', error.message);
+        console.error("❌ Ma'lumotlarni saqlashda xatolik:", error.message);
     }
 }
 
@@ -57,7 +55,7 @@ bot.start((ctx) => {
     buttons.push([{ text: '✅ Obunani tekshirish', callback_data: 'check_subscription' }]);
 
     ctx.reply(
-        `⛔️ Botdan foydalanish uchun quyidagi kanallarga obuna bo'ling:`,
+        "⛔️ Botdan foydalanish uchun quyidagi kanallarga obuna bo'ling:",
         { reply_markup: { inline_keyboard: buttons } }
     );
 });
@@ -73,18 +71,18 @@ bot.action('check_subscription', async (ctx) => {
         data.users[userId].subscribed = true;
         saveData(data);
         await ctx.editMessageText(
-            `✅ Obuna muvaffaqiyatli tasdiqlandi! Endi kino kodini kiriting.`,
+            "✅ Obuna muvaffaqiyatli tasdiqlandi! Endi kino kodini kiriting.",
             {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: '🔍 Kodlarni kirish', url: 'https://t.me/secret_kino1' }]
+                        [{ text: '🔍 Kodlarni kirish', url: 'https://t.me/goldkinolar_hd' }]
                     ]
                 }
             }
         );
     } else {
         await ctx.editMessageText(
-            `❌ Hali hamma kanallarga obuna bo'lmadingiz. Iltimos, obuna bo'ling va yana tekshiring.`,
+            "❌ Hali hamma kanallarga obuna bo'lmadingiz. Iltimos, obuna bo'ling va yana tekshiring.",
             {
                 reply_markup: {
                     inline_keyboard: channels.map((channel, index) => {
@@ -117,13 +115,13 @@ bot.on('video', async (ctx) => {
     const data = loadData();
     const userId = ctx.from.id;
 
-    if (userId !== ADMIN_ID) {
-        return ctx.reply('❌ Faqat administrator kinolarni qo\'shishi mumkin.');
+    if (!ADMIN_IDS.includes(userId)) {
+        return ctx.reply("❌ Faqat administrator kinolarni qo'shishi mumkin.");
     }
 
     const video = ctx.message.video;
     if (!video || !video.file_id) {
-        return ctx.reply('❌ Video fayli topilmadi yoki noto\'g\'ri format.');
+        return ctx.reply("❌ Video fayli topilmadi yoki noto'g'ri format.");
     }
 
     const movieId = data.movies.length + 1;
@@ -147,28 +145,23 @@ bot.on('text', (ctx) => {
     const userId = ctx.from.id;
 
     if (!data.users[userId] || !data.users[userId].subscribed) {
-        return ctx.reply(`⛔️ Iltimos, avval kanallarga obuna bo'ling va qayta tekshiring!`);
+        return ctx.reply("⛔️ Iltimos, avval kanallarga obuna bo'ling va qayta tekshiring!");
     }
 
     const movieId = parseInt(ctx.message.text.trim(), 10);
     const movie = data.movies.find(m => m.id === movieId);
 
     if (movie) {
-        try {
-            ctx.replyWithVideo(movie.fileId, {
-                caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }]
-                    ]
-                }
-            });
-        } catch (error) {
-            console.error(`❌ Video jo'natishda xatolik: ${error.message}`);
-            ctx.reply('❌ Video jo\'natishda muammo yuz berdi. Iltimos, keyinroq urinib ko\'ring.');
-        }
+        ctx.replyWithVideo(movie.fileId, {
+            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: 'Boshqa film...', url: 'https://t.me/goldkinolar_hd' }]
+                ]
+            }
+        });
     } else {
-        ctx.reply('❌ Bunday kino topilmadi. Iltimos, kodni to\'g\'ri kiriting.');
+        ctx.reply("❌ Bunday kino topilmadi. Iltimos, kodni to'g'ri kiriting.");
     }
 });
 
