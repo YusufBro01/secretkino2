@@ -153,7 +153,7 @@ bot.on('text', (ctx) => {
 
     if (movie) {
         ctx.replyWithVideo(movie.fileId, {
-            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@secret_kino1\n👑Admin:@secret_adminuzz`,
+            caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@goldkinolar_hd\n👑Admin:@yusuf_1broo`,
             reply_markup: {
                 inline_keyboard: [
                     [{ text: 'Boshqa film...', url: 'https://t.me/goldkinolar_hd' }]
