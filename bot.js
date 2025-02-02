@@ -2,13 +2,13 @@ const { Telegraf } = require('telegraf');
 const fs = require('fs');
 
 // Telegram bot tokenini yozing
-const bot = new Telegraf('8077949445:AAF4jou6ZQMpudlbtp5DUm-wFD5SJlVI_NI');
+const bot = new Telegraf('7641466998:AAEcb42vruQDn95WORNnoWcezmC7-XiNmxY');
 
 // Administrator Telegram ID larini bu yerga yozing
-const ADMIN_IDS = [5025075321, 5831400344]; // Bir nechta admin ID qo'shing
+const ADMIN_IDS = [5025075321,]; // Bir nechta admin ID qo'shing
 
 // Kanallarni belgilash
-const channels = ['@skv_s07', '@goldkinolar_hd',];
+const channels = ['@secret_kino1'];
 
 // Ma'lumotlar fayli
 const DATA_FILE = './data.json';
@@ -75,7 +75,7 @@ bot.action('check_subscription', async (ctx) => {
             {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: '🔍 Kodlarni kirish', url: 'https://t.me/goldkinolar_hd' }]
+                        [{ text: '🔍 Kodlarni kirish', url: 'https://t.me/secret_kino1' }]
                     ]
                 }
             }
@@ -156,7 +156,7 @@ bot.on('text', (ctx) => {
             caption: `🍿 Kino nomi: ${movie.fileName}\n📆 Yuklangan sana: ${movie.uploadDate}\n\n🔎 Kinoning kodi: ${movie.id}\n\n ✅Kanalga obuna bo'ling:@goldkinolar_hd\n👑Admin:@yusuf_1broo`,
             reply_markup: {
                 inline_keyboard: [
-                    [{ text: 'Boshqa film...', url: 'https://t.me/goldkinolar_hd' }]
+                    [{ text: 'Boshqa film...', url: 'https://t.me/secret_kino1' }]
                 ]
             }
         });
